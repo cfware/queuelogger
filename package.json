@@ -4,7 +4,8 @@
   "description": "CFWare queue_log mysql writer proxy",
   "main": "index.js",
   "scripts": {
-    "test": "eslint *.js test/*.js && nyc mocha"
+    "test": "eslint *.js test/*.js && nyc mocha",
+    "report-coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -28,10 +29,10 @@
     "url": "https://github.com/cfware/queuelogd/issues"
   },
   "homepage": "https://github.com/cfware/queuelogd#readme",
-  "config" : {
+  "config": {
     "dbhost": "localhost",
     "dbprivuser": "root",
-    "dbprivpassword" : ""
+    "dbprivpassword": ""
   },
   "dependencies": {
     "csv-parse": "^2.0.0",
