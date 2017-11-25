@@ -1,0 +1,46 @@
+{
+  "name": "@cfware/queue_log-mysql",
+  "version": "0.0.1",
+  "description": "CFWare queue_log mysql writer proxy",
+  "main": "index.js",
+  "scripts": {
+    "test": "eslint *.js test/*.js && nyc mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cfware/queue_log-mysql.git"
+  },
+  "author": "Corey Farrell",
+  "license": "MIT",
+  "keywords": [
+    "asterisk",
+    "queue_log",
+    "queuemetrics",
+    "mysql"
+  ],
+  "files": [
+    "*.js",
+    ".eslintrc.json",
+    "sampledb",
+    "test"
+  ],
+  "bugs": {
+    "url": "https://github.com/cfware/queuelogd/issues"
+  },
+  "homepage": "https://github.com/cfware/queuelogd#readme",
+  "config" : {
+    "dbhost": "localhost",
+    "dbprivuser": "root",
+    "dbprivpassword" : ""
+  },
+  "dependencies": {
+    "csv-parse": "^2.0.0",
+    "mysql": "^2.15.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.0.2",
+    "eslint": "^4.11.0",
+    "mocha": "^4.0.1",
+    "nyc": "^11.3.0"
+  }
+}
