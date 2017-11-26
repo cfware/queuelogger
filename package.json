@@ -1,6 +1,6 @@
 {
   "name": "@cfware/queue_log-mysql",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "CFWare queue_log mysql writer proxy",
   "main": "index.js",
   "scripts": {
@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^8.0.2",
-    "eslint": "^4.11.0",
+    "eslint": "^4.12.0",
     "mocha": "^4.0.1",
     "nyc": "^11.3.0"
   }
