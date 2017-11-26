@@ -26,9 +26,9 @@
     "test"
   ],
   "bugs": {
-    "url": "https://github.com/cfware/queuelogd/issues"
+    "url": "https://github.com/cfware/queue_log-mysql/issues"
   },
-  "homepage": "https://github.com/cfware/queuelogd#readme",
+  "homepage": "https://github.com/cfware/queue_log-mysql#readme",
   "config": {
     "dbhost": "localhost",
     "dbprivuser": "root",
