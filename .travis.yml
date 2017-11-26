@@ -9,3 +9,7 @@ services:
 
 before_install:
   - cat sampledb/qm.sql | mysql
+
+script:
+  - npm test
+  - npm run report-coverage

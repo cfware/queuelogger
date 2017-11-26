@@ -1,6 +1,7 @@
 # @cfware/queue_log-mysql
 
 [![Travis CI][travis-image]][travis-url]
+[![codecov][codecov-image]][codecov-url]
 [![Greenkeeper badge](https://badges.greenkeeper.io/cfware/queue_log-mysql.svg)](https://greenkeeper.io/)
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
@@ -48,6 +49,8 @@ npm test
 [npm-url]: https://npmjs.org/package/@cfware/queue_log-mysql
 [travis-image]: https://travis-ci.org/cfware/queue_log-mysql.svg?branch=master
 [travis-url]: https://travis-ci.org/cfware/queue_log-mysql
+[codecov-image]: https://codecov.io/gh/cfware/queue_log-mysql/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/cfware/queue_log-mysql
 [downloads-image]: https://img.shields.io/npm/dm/@cfware/queue_log-mysql.svg
 [downloads-url]: https://npmjs.org/package/@cfware/queue_log-mysql
 [license-image]: https://img.shields.io/github/license/cfware/queue_log-mysql.svg
