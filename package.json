@@ -7,6 +7,9 @@
     "test": "eslint *.js test/*.js && nyc mocha",
     "report-coverage": "nyc report --reporter=text-lcov | coveralls"
   },
+  "engines": {
+    "nodejs": ">=8"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cfware/queue_log-mysql.git"
