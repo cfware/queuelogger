@@ -33,6 +33,10 @@ class queuelogd extends net.Server {
 			.on('connection', socket => this._newConnection(socket));
 	}
 
+	get columns() {
+		return this._config.columns;
+	}
+
 	closeAll() {
 		this.close();
 		this._sockets.forEach(socket => socket.end());

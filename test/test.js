@@ -62,8 +62,7 @@ describe('@cfware/queue_log-mysql', function() {
 		before(() => {
 			const server = new queuelogd();
 
-			/* eslint no-underscore-dangle: off */
-			server._config.columns.forEach((val, idx) => expected_data[val] = test_data[idx]);
+			server.columns.forEach((val, idx) => expected_data[val] = test_data[idx]);
 		});
 
 		it('bad format disconnects', done => {
@@ -113,7 +112,7 @@ describe('@cfware/queue_log-mysql', function() {
 				client.on('close', () => server.close());
 			});
 			server.on('shutdown-complete', () => {
-				const cols = server._config.columns.map(id => '`' + id + '`').join(',');
+				const cols = server.columns.map(id => '`' + id + '`').join(',');
 				cli.query(`SELECT ${cols} FROM queue_log WHERE time_id = ?`, time_id, (error, results) => {
 					if (error) {
 						done(error);
