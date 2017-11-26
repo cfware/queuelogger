@@ -19,8 +19,7 @@ npm i --save @cfware/queue_log-mysql
 
 ## Usage
 
-Usage will be shown by example in `@cfware/queuelogd` which is yet to be published.
-It'll be linked here once released.
+See [@cfware/queuelogd] for example daemon.
 
 ## Running tests
 
@@ -54,3 +53,4 @@ npm test
 [downloads-image]: https://img.shields.io/npm/dm/@cfware/queue_log-mysql.svg
 [downloads-url]: https://npmjs.org/package/@cfware/queue_log-mysql
 [license-image]: https://img.shields.io/github/license/cfware/queue_log-mysql.svg
+[@cfware/queuelogd]: https://github.com/cfware/queuelogd
