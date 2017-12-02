@@ -13,7 +13,7 @@ class queue_log extends events {
 
 		this.partition = partition || 'P001';
 		/* default is the first part of our hostname only. */
-		this.serverid = serverid || hostname().replace(/\..*/, '');
+		this.serverid = serverid || hostname().replace(/\..*/, '').slice(0, 10);
 		this.table_name = table_name || 'queue_log';
 		this.mysql = mysqlClient.createPool({
 			acquireTimeout: 10000,
