@@ -23,7 +23,9 @@ const data2 = 'data2';
 const data3 = 'data3';
 const data4 = 'data4';
 const data5 = 'data5';
-const serverid = hostname().replace(/\..*/, '');
+/* The mysql field is only 10 characters, trim this so we check for what mysql can
+ * contain in the case of a-really-long-hostname.example.com. */
+const serverid = hostname().replace(/\..*/, '').slice(0, 10);
 
 const settings = {
 	mysql: {
