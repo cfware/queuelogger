@@ -34,7 +34,6 @@ const test_data = [
 	'serverid',
 ];
 
-/* global describe: true, it: true, before: true */
 describe('@cfware/queue_log-mysql', function() {
 	this.slow(500);
 	describe('basic lifecycle', () => {
