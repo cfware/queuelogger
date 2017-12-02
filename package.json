@@ -1,11 +1,10 @@
 {
   "name": "@cfware/queue_log-mysql",
   "version": "0.1.0",
-  "description": "CFWare queue_log mysql writer proxy",
+  "description": "CFWare queue_log mysql writer",
   "main": "index.js",
   "scripts": {
-    "test": "eslint *.js test/*.js && nyc mocha",
-    "report-coverage": "nyc report --reporter=text-lcov | coveralls"
+    "test": "eslint *.js test/*.js && nyc mocha"
   },
   "engines": {
     "nodejs": ">=8"
@@ -38,13 +37,25 @@
     "dbprivpassword": ""
   },
   "dependencies": {
-    "csv-parse": "^2.0.0",
-    "mysql": "^2.15.0"
+    "@cfware/p-mutex": "^0.1.0",
+    "mysql": "^2.15.0",
+    "p-event": "^1.3.0"
   },
   "devDependencies": {
-    "babel-eslint": "^8.0.2",
-    "eslint": "^4.12.0",
+    "babel-eslint": "^8.0.3",
+    "eslint": "^4.12.1",
     "mocha": "^4.0.1",
-    "nyc": "^11.3.0"
+    "nyc": "^11.4.0"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "per-file": true,
+    "lines": 100,
+    "statements": 100,
+    "functions": 100,
+    "branches": 100,
+    "include": [
+      "index.js"
+    ]
   }
 }

@@ -21,10 +21,19 @@
         "array-bracket-spacing": ["error", "never"],
         "object-curly-spacing": ["error", "never"],
         "object-curly-newline": ["error", {
-            "minProperties": 3,
-            "multiline": true
+            "ObjectExpression": {
+                "minProperties": 3,
+                "multiline": true
+            },
+            "ObjectPattern": {
+                "consistent": true
+            }
         }],
-        "space-before-function-paren": ["error", "never"],
+        "space-before-function-paren": ["error", {
+            "anonymous": "never",
+            "named": "never",
+            "asyncArrow": "always"
+        }],
         "quote-props": ["error", "as-needed"],
         "max-len": ["error", 200, 4],
         "id-length": ["error", {

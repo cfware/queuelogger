@@ -1,9 +1,9 @@
 'use strict';
 
 const assert = require('assert');
-const net = require('net');
-const queuelogd = require('..');
-const mysqlClient = require('mysql');
+const queue_log = require('..');
+const mysql = require('mysql');
+const {hostname} = require('os');
 
 const mysql_client_settings = {
 	host: process.env.npm_package_config_dbhost,
@@ -11,125 +11,147 @@ const mysql_client_settings = {
 	password: process.env.npm_package_config_dbprivpassword,
 	database: 'queuemetrics',
 };
-const mysql = {
-	host: process.env.npm_package_config_dbhost,
-	user: 'queuelogd',
-	password: 'queuelogd',
-	database: 'queuemetrics',
+
+const partition = 'P001';
+const time_id = 500000000;
+const call_id = 'call_id';
+const queue = 'queue';
+const agent = 'agent';
+const verb = 'verb';
+const data1 = 'data1';
+const data2 = 'data2';
+const data3 = 'data3';
+const data4 = 'data4';
+const data5 = 'data5';
+const serverid = hostname().replace(/\..*/, '');
+
+const settings = {
+	mysql: {
+		host: process.env.npm_package_config_dbhost,
+		user: 'queuelogd',
+		password: 'queuelogd',
+	},
+};
+const test_object1 = {
+	partition,
+	time_id,
+	call_id,
+	queue,
+	agent,
+	verb,
+	data1,
+	data2,
+	data3,
+	data4,
+	data5,
+	serverid,
+};
+const test_data1 = [time_id, call_id, queue, agent, verb, data1, data2, data3, data4, data5];
+const test_object2 = {
+	...test_object1,
+	call_id: 'NONE',
+	queue: 'NONE',
+	agent: 'NONE',
+	unique_row_count: 2,
 };
 
-const time_id = 500000000;
-const test_data = [
-	'partition',
-	'' + time_id,
-	'callid',
-	'queue',
-	'agent',
-	'verb',
-	'data1',
-	'data2',
-	'data3',
-	'data4',
-	'data5',
-	'serverid',
-];
+describe('queue_log', () => {
+	/* First run takes longer than normal, extra create to avoid slowness warnings. */
+	before(() => new queue_log());
 
-describe('@cfware/queue_log-mysql', function() {
-	this.slow(500);
-	describe('basic lifecycle', () => {
-		it('new config.mysql does not throw', () => assert.ok(new queuelogd({mysql}), 'Failed to create server.'));
-		it('closeAll closes connections', done => {
-			const server = new queuelogd({mysql});
+	it('new', () => assert.ok(new queue_log()));
+	it('new contains mysql', () => assert.ok((new queue_log()).mysql));
 
-			server.listen({port: 0}, () => {
-				net.createConnection({port: server.address().port})
-					.on('connect', () => server.closeAll())
-					.on('close', () => done());
-			});
-		});
-		it('listen error', done => {
-			const server = new queuelogd({mysql});
+	describe('constructor defaults', () => {
+		const ql = new queue_log();
 
-			server.on('error', () => done());
-			server.listen({host: '256.256.256.256', port: 0});
-		});
+		it('partition', () => assert.equal(ql.partition, partition));
+		it('table_name', () => assert.equal(ql.table_name, 'queue_log'));
+		it('serverid', () => assert.equal(ql.serverid, serverid));
 	});
 
-	describe('mysql tests', function() {
-		const expected_data = {};
-
-		before(() => {
-			const server = new queuelogd();
-
-			server.columns.forEach((val, idx) => expected_data[val] = test_data[idx]);
+	describe('constructor arguments', () => {
+		const ql = new queue_log({
+			partition: 'P002',
+			table_name: 'testtable',
+			serverid: 'testsrv',
 		});
 
-		it('bad format disconnects', done => {
-			const server = new queuelogd({mysql});
+		it('partition', () => assert.equal(ql.partition, 'P002'));
+		it('table_name', () => assert.equal(ql.table_name, 'testtable'));
+		it('serverid', () => assert.equal(ql.serverid, 'testsrv'));
+	});
 
-			server.on('close', () => done());
-			server.on('listening', () => {
-				const client = net.createConnection({port: server.address().port});
+	describe('insert', () => {
+		it('writeEntry after end throws', async () => {
+			const ql = new queue_log();
 
-				client.on('close', () => server.closeAll());
-				client.on('connect', () => client.write('"broken record","should disconnect"\n'));
-			});
-			server.listen({port: 0});
-		});
-		it('insert-failure works', done => {
-			const server = new queuelogd({mysql: {user: 'invalid user'}});
-
-			server.on('insert-failure', info => assert.deepEqual(info.data, expected_data));
-			server.on('listening', () => {
-				const client = net.createConnection({port: server.address().port});
-
-				client.on('connect', () => {
-					server.on('insert-failure', () => {
-						server.close();
-						client.end();
-					});
-					client.write(test_data.join(',') + '\n');
-				});
-			});
-			server.on('close', () => done());
-			server.listen({port: 0});
+			await ql.end();
+			try {
+				await ql.writeEntry(...test_data1);
+				assert.ok(false, 'Expected an error');
+			} catch(e) {
+				/* Ignored expected error */
+			}
 		});
 
-		it('insert works', done => {
-			const cli = mysqlClient.createConnection(mysql_client_settings);
-			const server = new queuelogd({mysql});
+		it('invalid user throws', async () => {
+			const ql = new queue_log({mysql: {user: 'invalid user'}});
 
-			server.on('insert-failure', info => done(info.error));
-			server.on('listening', () => {
-				const {port} = server.address();
-				const client = net.createConnection({port});
+			try {
+				await ql.writeEntry(...test_data1);
+				assert.ok(false, 'Expected an error');
+			} catch(e) {
+				/* Ignored expected error */
+			}
+			await ql.end();
+		});
 
-				client.on('connect', () => {
-					client.write(test_data.join(',') + '\n');
-					client.end();
-				});
-				client.on('close', () => server.close());
+		it('unknown table_name throws', async () => {
+			const ql = new queue_log({
+				...settings,
+				table_name: 'unknown_table',
 			});
-			server.on('shutdown-complete', () => {
-				const cols = server.columns.map(id => '`' + id + '`').join(',');
-				cli.query(`SELECT ${cols} FROM queue_log WHERE time_id = ?`, time_id, (error, results) => {
+
+			try {
+				await ql.writeEntry(...test_data1);
+				assert.ok(false, 'Expected an error');
+			} catch(e) {
+				/* Ignored expected error */
+			}
+			await ql.end();
+		});
+
+		it('success with auto_inc order', async () => {
+			const cli = mysql.createConnection(mysql_client_settings);
+			const p_query = (cli, ...args) => new Promise((resolve, reject) => {
+				cli.query(...args, (error, results) => {
 					if (error) {
-						done(error);
-						return;
+						reject(error);
+					} else {
+						resolve(results);
 					}
-					assert.deepEqual(results[0], expected_data);
-					cli.end();
-					done();
 				});
 			});
+			const ql = new queue_log(settings);
 
-			cli.query('DELETE FROM queue_log WHERE time_id = ?', time_id, error => {
-				if (error) {
-					done(error);
-					return;
-				}
-				server.listen({port: 0});
+			after(() => {
+				cli.end();
+				ql.end();
 			});
+
+			/* Clear records from previous test. */
+			await p_query(cli, 'DELETE FROM queue_log WHERE time_id = ?', time_id);
+
+			ql.writeEntry(...test_data1);
+			await ql.writeEntry(time_id, '', '', '', verb, data1, data2, data3, data4, data5);
+			await ql.end();
+
+			const cols = Object.keys(test_object1).map(key => '`' + key + '`').join(',');
+			const sqlstr = `SELECT ${cols}, unique_row_count FROM queue_log WHERE time_id = ? ORDER BY unique_row_count`;
+			const results = await p_query(cli, sqlstr, time_id);
+
+			assert.deepEqual(results, [{...test_object1, unique_row_count: 1}, test_object2]);
 		});
 	});
 });

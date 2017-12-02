@@ -1,85 +1,125 @@
 'use strict';
 
-const net = require('net');
-const mysql = require('mysql');
-const csv = require('csv-parse');
+const mysqlClient = require('mysql');
+const events = require('events');
+const assert = require('assert');
+const {hostname} = require('os');
+const PMutex = require('@cfware/p-mutex');
+const pEvent = require('p-event');
 
-class queuelogd extends net.Server {
-	constructor(config) {
+class queue_log extends events {
+	constructor({partition, serverid, table_name, mysql} = {}) {
 		super();
 
-		this._config = {
-			table: 'queue_log',
-			columns: [
-				'partition', 'time_id', 'call_id',
-				'queue', 'agent', 'verb', 'data1', 'data2', 'data3', 'data4', 'data5',
-				'serverid',
-			],
-			...config,
-		};
-		this._closing = false;
-		this._queueSize = 0;
-		this._sockets = [];
-		this._pool = mysql.createPool({
+		this.partition = partition || 'P001';
+		/* default is the first part of our hostname only. */
+		this.serverid = serverid || hostname().replace(/\..*/, '');
+		this.table_name = table_name || 'queue_log';
+		this.mysql = mysqlClient.createPool({
 			acquireTimeout: 10000,
 			waitForConnections: true,
 			connectionLimit: 10,
 			queueLimit: 0,
-			...this._config.mysql,
+			database: 'queuemetrics',
+			...mysql,
 		});
-		this
-			.on('close', () => this._setClosing())
-			.on('error', () => this._setClosing())
-			.on('connection', socket => this._newConnection(socket));
+		this.pendingCount = 0;
+		this.pending = {};
+		this.wantsEnd = null;
 	}
 
-	get columns() {
-		return this._config.columns;
-	}
-
-	closeAll() {
-		this.close();
-		this._sockets.forEach(socket => socket.end());
-	}
-
-	_setClosing() {
-		this._closing = true;
-		this._shutdownCheck();
-	}
-
-	_shutdownCheck() {
-		if (this._closing && !this._queueSize && !this._sockets.length) {
-			this._pool.end();
-			this._closing = false;
-			this.emit('shutdown-complete');
+	checkEnd() {
+		if (this.wantsEnd && this.mysql && !this.pendingCount) {
+			this.mysql.end(() => this.emit('end'));
+			this.mysql = null;
 		}
 	}
 
-	_newConnection(socket) {
-		this._sockets.push(socket);
-		socket
-			.on('finish', () => this._endConnection(socket))
-			.setEncoding('utf8')
-			.pipe(csv({columns: this._config.columns, rowDelimiter: '\n'}))
-			.on('error', () => socket.end())
-			.on('data', data => this._dataReceived(socket, data));
+	end() {
+		if (!this.wantsEnd) {
+			this.wantsEnd = pEvent(this, 'end');
+			this.checkEnd();
+		}
+
+		return this.wantsEnd;
 	}
 
-	_endConnection(socket) {
-		this._sockets.splice(this._sockets.indexOf(socket), 1);
-		this._shutdownCheck();
-	}
-
-	_dataReceived(socket, data) {
-		this._queueSize += 1;
-		this._pool.query(`INSERT INTO ${this._config.table} SET ?`, data, error => {
-			if (error) {
-				this.emit('insert-failure', {data, error});
-			}
-			this._queueSize -= 1;
-			this._shutdownCheck();
+	_getConnection() {
+		return new Promise((resolve, reject) => {
+			this.mysql.getConnection((err, connection) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(connection);
+				}
+			});
 		});
+	}
+
+	_doQuery(connection, data) {
+		return new Promise((resolve, reject) => {
+			connection.query(`INSERT INTO ${this.table_name} SET ?`, data, error => {
+				if (error) {
+					reject(error);
+				} else {
+					resolve();
+				}
+			});
+		});
+	}
+
+	async _actualInsert(key, data) {
+		if (!(key in this.pending)) {
+			this.pendingCount++;
+			this.pending[key] = new PMutex();
+			this.pending[key].on('drain', () => {
+				delete this.pending[key];
+				this.pendingCount--;
+				this.checkEnd();
+			});
+		}
+
+		const lock = await this.pending[key].lock();
+
+		try {
+			const connection = await this._getConnection();
+
+			try {
+				await this._doQuery(connection, data);
+			} finally {
+				connection.release();
+			}
+		} finally {
+			lock.release();
+		}
+	}
+
+	async writeEntry(time_id, call_id, queue, agent, verb, data1, data2, data3, data4, data5) {
+		const {partition, serverid} = this;
+		const data = {
+			partition,
+			time_id,
+			call_id: call_id || 'NONE',
+			queue: queue || 'NONE',
+			agent: agent || 'NONE',
+			verb,
+			data1,
+			data2,
+			data3,
+			data4,
+			data5,
+			serverid,
+		};
+		const key = `${partition}-${time_id}`;
+
+		assert.ok(verb, 'Required parameter verb not provided.');
+
+		if (!this.mysql) {
+			throw new Error('Shutting down.');
+		}
+
+		await this._actualInsert(key, data);
 	}
 }
 
-module.exports = queuelogd;
+module.exports = queue_log;

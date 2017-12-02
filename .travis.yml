@@ -10,9 +10,5 @@ services:
 before_install:
   - cat sampledb/qm.sql | mysql
 
-before_script:
-  - npm install -g coveralls
-
 script:
   - npm test
-  - npm run report-coverage

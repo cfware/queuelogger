@@ -7,7 +7,7 @@
 [![NPM Downloads][downloads-image]][downloads-url]
 [![MIT][license-image]](LICENSE)
 
-CFWare queue_log mysql writer proxy
+CFWare queue_log mysql writer
 
 ### Install @cfware/queue_log-mysql
 
@@ -19,7 +19,38 @@ npm i --save @cfware/queue_log-mysql
 
 ## Usage
 
-See [@cfware/queuelogd] for example daemon.
+```js
+const queue_log = require('@cfware/queue_log-mysql');
+
+class QueueManager {
+	constructor() {
+		this.queue_log = new queue_log({
+			/* Default is 'P001', used as value of partition column. */
+			partition: 'P001',
+			/* Default is least significant part of hostname, used as value of serverid column. */
+			serverid: 'serverid',
+			/* Default: 'queue_log', the table we insert to. */
+			table_name: 'queue_log',
+			/* Override default settings used by require('mysql').createPool.
+			 * The default database is queuemetrics.
+			 */
+			mysql: {},
+		});
+
+		process.on('SIGTERM', () => this.queue_log.end().catch(() => {}));
+	}
+
+	async writeQueueLog(time_id, call_id, queue, agent, verb, data1, data2, data3, data4, data5) {
+		/* This is a pointless example.  In real life a queue manager would retrieve some
+		 * data from a channel or other object. */
+		try {
+			await this.queue_log.writeEntry(time_id, call_id, queue, agent, verb, data1, data2, data3, data4, data5);
+		} catch (err) {
+			/* mysql write failed, record to a file. */
+		}
+	}
+}
+```
 
 ## Running tests
 
@@ -53,4 +84,3 @@ npm test
 [downloads-image]: https://img.shields.io/npm/dm/@cfware/queue_log-mysql.svg
 [downloads-url]: https://npmjs.org/package/@cfware/queue_log-mysql
 [license-image]: https://img.shields.io/github/license/cfware/queue_log-mysql.svg
-[@cfware/queuelogd]: https://github.com/cfware/queuelogd
