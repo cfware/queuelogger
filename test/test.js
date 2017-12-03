@@ -1,9 +1,10 @@
 'use strict';
 
 const assert = require('assert');
-const queue_log = require('..');
-const mysql = require('mysql');
+const QueueLog = require('..');
 const {hostname} = require('os');
+const mysql = require('mysql');
+const {describe, before, after, it} = require('mocha');
 
 const mysql_client_settings = {
 	host: process.env.npm_package_config_dbhost,
@@ -34,7 +35,7 @@ const settings = {
 		password: 'queuelogd',
 	},
 };
-const test_object1 = {
+const testObject1 = {
 	partition,
 	time_id,
 	call_id,
@@ -48,9 +49,9 @@ const test_object1 = {
 	data5,
 	serverid,
 };
-const test_data1 = [time_id, call_id, queue, agent, verb, data1, data2, data3, data4, data5];
-const test_object2 = {
-	...test_object1,
+const testData1 = [time_id, call_id, queue, agent, verb, data1, data2, data3, data4, data5];
+const testObject2 = {
+	...testObject1,
 	call_id: 'NONE',
 	queue: 'NONE',
 	agent: 'NONE',
@@ -59,13 +60,13 @@ const test_object2 = {
 
 describe('queue_log', () => {
 	/* First run takes longer than normal, extra create to avoid slowness warnings. */
-	before(() => new queue_log());
+	before(() => new QueueLog());
 
-	it('new', () => assert.ok(new queue_log()));
-	it('new contains mysql', () => assert.ok((new queue_log()).mysql));
+	it('new', () => assert.ok(new QueueLog()));
+	it('new contains mysql', () => assert.ok((new QueueLog()).mysql));
 
 	describe('constructor defaults', () => {
-		const ql = new queue_log();
+		const ql = new QueueLog();
 
 		it('partition', () => assert.equal(ql.partition, partition));
 		it('table_name', () => assert.equal(ql.table_name, 'queue_log'));
@@ -73,7 +74,7 @@ describe('queue_log', () => {
 	});
 
 	describe('constructor arguments', () => {
-		const ql = new queue_log({
+		const ql = new QueueLog({
 			partition: 'P002',
 			table_name: 'testtable',
 			serverid: 'testsrv',
@@ -86,47 +87,44 @@ describe('queue_log', () => {
 
 	describe('insert', () => {
 		it('writeEntry after end throws', async () => {
-			const ql = new queue_log();
+			const ql = new QueueLog();
 
 			await ql.end();
 			try {
-				await ql.writeEntry(...test_data1);
+				await ql.writeEntry(...testData1);
 				assert.ok(false, 'Expected an error');
-			} catch(e) {
-				/* Ignored expected error */
+			} catch (err) {
 			}
 		});
 
 		it('invalid user throws', async () => {
-			const ql = new queue_log({mysql: {user: 'invalid user'}});
+			const ql = new QueueLog({mysql: {user: 'invalid user'}});
 
 			try {
-				await ql.writeEntry(...test_data1);
+				await ql.writeEntry(...testData1);
 				assert.ok(false, 'Expected an error');
-			} catch(e) {
-				/* Ignored expected error */
+			} catch (err) {
 			}
 			await ql.end();
 		});
 
 		it('unknown table_name throws', async () => {
-			const ql = new queue_log({
+			const ql = new QueueLog({
 				...settings,
 				table_name: 'unknown_table',
 			});
 
 			try {
-				await ql.writeEntry(...test_data1);
+				await ql.writeEntry(...testData1);
 				assert.ok(false, 'Expected an error');
-			} catch(e) {
-				/* Ignored expected error */
+			} catch (err) {
 			}
 			await ql.end();
 		});
 
 		it('success with auto_inc order', async () => {
 			const cli = mysql.createConnection(mysql_client_settings);
-			const p_query = (cli, ...args) => new Promise((resolve, reject) => {
+			const pQuery = (cli, ...args) => new Promise((resolve, reject) => {
 				cli.query(...args, (error, results) => {
 					if (error) {
 						reject(error);
@@ -135,7 +133,7 @@ describe('queue_log', () => {
 					}
 				});
 			});
-			const ql = new queue_log(settings);
+			const ql = new QueueLog(settings);
 
 			after(() => {
 				cli.end();
@@ -143,17 +141,17 @@ describe('queue_log', () => {
 			});
 
 			/* Clear records from previous test. */
-			await p_query(cli, 'DELETE FROM queue_log WHERE time_id = ?', time_id);
+			await pQuery(cli, 'DELETE FROM queue_log WHERE time_id = ?', time_id);
 
-			ql.writeEntry(...test_data1);
+			ql.writeEntry(...testData1);
 			await ql.writeEntry(time_id, '', '', '', verb, data1, data2, data3, data4, data5);
 			await ql.end();
 
-			const cols = Object.keys(test_object1).map(key => '`' + key + '`').join(',');
+			const cols = Object.keys(testObject1).map(key => '`' + key + '`').join(',');
 			const sqlstr = `SELECT ${cols}, unique_row_count FROM queue_log WHERE time_id = ? ORDER BY unique_row_count`;
-			const results = await p_query(cli, sqlstr, time_id);
+			const results = await pQuery(cli, sqlstr, time_id);
 
-			assert.deepEqual(results, [{...test_object1, unique_row_count: 1}, test_object2]);
+			assert.deepEqual(results, [{...testObject1, unique_row_count: 1}, testObject2]);
 		});
 	});
 });

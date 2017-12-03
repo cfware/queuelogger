@@ -1,9 +1,9 @@
 'use strict';
 
-const mysqlClient = require('mysql');
-const events = require('events');
 const assert = require('assert');
+const events = require('events');
 const {hostname} = require('os');
+const mysqlClient = require('mysql');
 const PMutex = require('@cfware/p-mutex');
 const pEvent = require('p-event');
 
@@ -12,7 +12,7 @@ class queue_log extends events {
 		super();
 
 		this.partition = partition || 'P001';
-		/* default is the first part of our hostname only. */
+		/* Default is the first part of our hostname only, up to 10 characters. */
 		this.serverid = serverid || hostname().replace(/\..*/, '').slice(0, 10);
 		this.table_name = table_name || 'queue_log';
 		this.mysql = mysqlClient.createPool({
