@@ -1,30 +1,30 @@
-# @cfware/queue_log-mysql
+# @aqm/queuelogger
 
 [![Travis CI][travis-image]][travis-url]
 [![Coverage Status][coverage-image]][coverage-url]
-[![Greenkeeper badge](https://badges.greenkeeper.io/cfware/queue_log-mysql.svg)](https://greenkeeper.io/)
+[![Greenkeeper badge](https://badges.greenkeeper.io/cfware/queuelogger.svg)](https://greenkeeper.io/)
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
 [![MIT][license-image]](LICENSE)
 
-CFWare queue_log mysql writer
+CFWare AQM queue_log mysql writer
 
-### Install @cfware/queue_log-mysql
+### Install @aqm/queuelogger
 
 This module requires node.js 8 or above.
 
 ```sh
-npm i --save @cfware/queue_log-mysql
+npm i --save @aqm/queuelogger
 ```
 
 ## Usage
 
 ```js
-const queue_log = require('@cfware/queue_log-mysql');
+const queuelogger = require('@aqm/queuelogger');
 
 class QueueManager {
 	constructor() {
-		this.queue_log = new queue_log({
+		this.queue_log = new queuelogger({
 			/* Default is 'P001', used as value of partition column. */
 			partition: 'P001',
 			/* Default is least significant part of hostname, used as value of serverid column. */
@@ -40,11 +40,11 @@ class QueueManager {
 		process.on('SIGTERM', () => this.queue_log.end().catch(() => {}));
 	}
 
-	async writeQueueLog(time_id, call_id, queue, agent, verb, data1, data2, data3, data4, data5) {
+	async writeQueueLog(timeID, callID, queue, agent, verb, data1, data2, data3, data4, data5) {
 		/* This is a pointless example.  In real life a queue manager would retrieve some
 		 * data from a channel or other object. */
 		try {
-			await this.queue_log.writeEntry(time_id, call_id, queue, agent, verb, data1, data2, data3, data4, data5);
+			await this.queue_log.writeEntry(timeID, callID, queue, agent, verb, data1, data2, data3, data4, data5);
 		} catch (err) {
 			/* mysql write failed, record to a file. */
 		}
@@ -60,9 +60,9 @@ a `queuelogd` user as defined by `sampledb/qm.sql`.
 
 Default test configuration:
 ```sh
-npm config set @cfware/queue_log-mysql:dbhost 'localhost'
-npm config set @cfware/queue_log-mysql:dbprivuser 'root'
-npm config set @cfware/queue_log-mysql:dbprivpassword ''
+npm config set @aqm/queuelogger:dbhost 'localhost'
+npm config set @aqm/queuelogger:dbprivuser 'root'
+npm config set @aqm/queuelogger:dbprivpassword ''
 ```
 
 These settings can be changed to use a different server or to use an account less
@@ -75,12 +75,12 @@ npm install
 npm test
 ```
 
-[npm-image]: https://img.shields.io/npm/v/@cfware/queue_log-mysql.svg
-[npm-url]: https://npmjs.org/package/@cfware/queue_log-mysql
-[travis-image]: https://travis-ci.org/cfware/queue_log-mysql.svg?branch=master
-[travis-url]: https://travis-ci.org/cfware/queue_log-mysql
-[coverage-image]: https://coveralls.io/repos/github/cfware/queue_log-mysql/badge.svg
-[coverage-url]: https://coveralls.io/github/cfware/queue_log-mysql
-[downloads-image]: https://img.shields.io/npm/dm/@cfware/queue_log-mysql.svg
-[downloads-url]: https://npmjs.org/package/@cfware/queue_log-mysql
-[license-image]: https://img.shields.io/github/license/cfware/queue_log-mysql.svg
+[npm-image]: https://img.shields.io/npm/v/@aqm/queuelogger.svg
+[npm-url]: https://npmjs.org/package/@aqm/queuelogger
+[travis-image]: https://travis-ci.org/cfware/queuelogger.svg?branch=master
+[travis-url]: https://travis-ci.org/cfware/queuelogger
+[coverage-image]: https://coveralls.io/repos/github/cfware/queuelogger/badge.svg
+[coverage-url]: https://coveralls.io/github/cfware/queuelogger
+[downloads-image]: https://img.shields.io/npm/dm/@aqm/queuelogger.svg
+[downloads-url]: https://npmjs.org/package/@aqm/queuelogger
+[license-image]: https://img.shields.io/github/license/cfware/queuelogger.svg

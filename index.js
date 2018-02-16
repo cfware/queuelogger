@@ -7,14 +7,14 @@ const mysqlClient = require('mysql');
 const PMutex = require('@cfware/p-mutex');
 const pEvent = require('p-event');
 
-class queue_log extends events {
-	constructor({partition, serverid, table_name, mysql} = {}) {
+class queuelogger extends events {
+	constructor({partition, serverID, tableName, mysql} = {}) {
 		super();
 
 		this.partition = partition || 'P001';
 		/* Default is the first part of our hostname only, up to 10 characters. */
-		this.serverid = serverid || hostname().replace(/\..*/, '').slice(0, 10);
-		this.table_name = table_name || 'queue_log';
+		this.serverID = serverID || hostname().replace(/\..*/, '').slice(0, 10);
+		this.tableName = tableName || 'queue_log';
 		this.mysql = mysqlClient.createPool({
 			acquireTimeout: 10000,
 			waitForConnections: true,
@@ -58,7 +58,7 @@ class queue_log extends events {
 
 	_doQuery(connection, data) {
 		return new Promise((resolve, reject) => {
-			connection.query(`INSERT INTO ${this.table_name} SET ?`, data, error => {
+			connection.query(`INSERT INTO ${this.tableName} SET ?`, data, error => {
 				if (error) {
 					reject(error);
 				} else {
@@ -94,12 +94,12 @@ class queue_log extends events {
 		}
 	}
 
-	async writeEntry(time_id, call_id, queue, agent, verb, data1, data2, data3, data4, data5) {
-		const {partition, serverid} = this;
+	async writeEntry(timeID, callID, queue, agent, verb, data1, data2, data3, data4, data5) {
+		const {partition, serverID} = this;
 		const data = {
 			partition,
-			time_id,
-			call_id: call_id || 'NONE',
+			time_id: timeID,
+			call_id: callID || 'NONE',
 			queue: queue || 'NONE',
 			agent: agent || 'NONE',
 			verb,
@@ -108,9 +108,9 @@ class queue_log extends events {
 			data3,
 			data4,
 			data5,
-			serverid,
+			serverid: serverID,
 		};
-		const key = `${partition}-${time_id}`;
+		const key = `${partition}-${timeID}`;
 
 		assert.ok(verb, 'Required parameter verb not provided.');
 
@@ -122,4 +122,4 @@ class queue_log extends events {
 	}
 }
 
-module.exports = queue_log;
+module.exports = queuelogger;

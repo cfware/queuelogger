@@ -1,7 +1,7 @@
 {
-	"name": "@cfware/queue_log-mysql",
-	"version": "0.2.0",
-	"description": "CFWare queue_log mysql writer",
+	"name": "@aqm/queuelogger",
+	"version": "0.3.0",
+	"description": "CFWare AQM queue_log mysql writer",
 	"main": "index.js",
 	"scripts": {
 		"test": "xo && nyc mocha"
@@ -11,7 +11,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/cfware/queue_log-mysql.git"
+		"url": "git+https://github.com/cfware/queuelogger.git"
 	},
 	"author": "Corey Farrell",
 	"license": "MIT",
@@ -27,9 +27,9 @@
 		"test"
 	],
 	"bugs": {
-		"url": "https://github.com/cfware/queue_log-mysql/issues"
+		"url": "https://github.com/cfware/queuelogger/issues"
 	},
-	"homepage": "https://github.com/cfware/queue_log-mysql#readme",
+	"homepage": "https://github.com/cfware/queuelogger#readme",
 	"config": {
 		"dbhost": "localhost",
 		"dbprivuser": "root",
@@ -41,10 +41,10 @@
 		"p-event": "^1.3.0"
 	},
 	"devDependencies": {
-		"eslint": "^4.12.1",
-		"mocha": "^4.0.1",
-		"nyc": "^11.4.0",
-		"xo": "^0.18.2"
+		"eslint": "^4.17.0",
+		"mocha": "^5.0.1",
+		"nyc": "^11.4.1",
+		"xo": "^0.20.2"
 	},
 	"xo": {
 		"rules": {
@@ -52,7 +52,7 @@
 				"error",
 				"always-multiline"
 			],
-			"camelcase": "off",
+			"camelcase": ["error", {"properties": "never"}],
 			"max-params": "off"
 		}
 	},
