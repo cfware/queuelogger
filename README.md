@@ -28,9 +28,9 @@ class QueueManager {
 			/* Default is 'P001', used as value of partition column. */
 			partition: 'P001',
 			/* Default is least significant part of hostname, used as value of serverid column. */
-			serverid: 'serverid',
+			serverID: 'serverid',
 			/* Default: 'queue_log', the table we insert to. */
-			table_name: 'queue_log',
+			tableName: 'queue_log',
 			/* Override default settings used by require('mysql').createPool.
 			 * The default database is queuemetrics.
 			 */
