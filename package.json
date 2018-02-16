@@ -55,7 +55,12 @@
 				"error",
 				"always-multiline"
 			],
-			"camelcase": ["error", {"properties": "never"}],
+			"camelcase": [
+				"error",
+				{
+					"properties": "never"
+				}
+			],
 			"max-params": "off"
 		}
 	},
