@@ -1,6 +1,6 @@
 {
 	"name": "@aqm/queuelogger",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"description": "CFWare AQM queue_log mysql writer",
 	"main": "index.js",
 	"scripts": {
