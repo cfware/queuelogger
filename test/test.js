@@ -10,7 +10,7 @@ const mysqlClientSettings = {
 	host: process.env.npm_package_config_dbhost,
 	user: process.env.npm_package_config_dbprivuser,
 	password: process.env.npm_package_config_dbprivpassword,
-	database: 'queuemetrics',
+	database: 'queuemetrics'
 };
 
 const partition = 'P001';
@@ -32,8 +32,8 @@ const settings = {
 	mysql: {
 		host: process.env.npm_package_config_dbhost,
 		user: 'queuelogd',
-		password: 'queuelogd',
-	},
+		password: 'queuelogd'
+	}
 };
 const testObject1 = {
 	partition,
@@ -47,7 +47,7 @@ const testObject1 = {
 	data3,
 	data4,
 	data5,
-	serverid: serverID,
+	serverid: serverID
 };
 const testData1 = [timeID, callID, queue, agent, verb, data1, data2, data3, data4, data5];
 const testObject2 = {
@@ -55,7 +55,7 @@ const testObject2 = {
 	call_id: 'NONE',
 	queue: 'NONE',
 	agent: 'NONE',
-	unique_row_count: 2,
+	unique_row_count: 2
 };
 
 describe('queuelogger', () => {
@@ -68,21 +68,21 @@ describe('queuelogger', () => {
 	describe('constructor defaults', () => {
 		const ql = new QueueLog();
 
-		it('partition', () => assert.equal(ql.partition, partition));
-		it('tableName', () => assert.equal(ql.tableName, 'queue_log'));
-		it('serverID', () => assert.equal(ql.serverID, serverID));
+		it('partition', () => assert.strictEqual(ql.partition, partition));
+		it('tableName', () => assert.strictEqual(ql.tableName, 'queue_log'));
+		it('serverID', () => assert.strictEqual(ql.serverID, serverID));
 	});
 
 	describe('constructor arguments', () => {
 		const ql = new QueueLog({
 			partition: 'P002',
 			tableName: 'testtable',
-			serverID: 'testsrv',
+			serverID: 'testsrv'
 		});
 
-		it('partition', () => assert.equal(ql.partition, 'P002'));
-		it('tableName', () => assert.equal(ql.tableName, 'testtable'));
-		it('serverID', () => assert.equal(ql.serverID, 'testsrv'));
+		it('partition', () => assert.strictEqual(ql.partition, 'P002'));
+		it('tableName', () => assert.strictEqual(ql.tableName, 'testtable'));
+		it('serverID', () => assert.strictEqual(ql.serverID, 'testsrv'));
 	});
 
 	describe('insert', () => {
@@ -93,7 +93,7 @@ describe('queuelogger', () => {
 			try {
 				await ql.writeEntry(...testData1);
 				assert.ok(false, 'Expected an error');
-			} catch (err) {
+			} catch (error) {
 			}
 		});
 
@@ -103,7 +103,7 @@ describe('queuelogger', () => {
 			try {
 				await ql.writeEntry(...testData1);
 				assert.ok(false, 'Expected an error');
-			} catch (err) {
+			} catch (error) {
 			}
 			await ql.end();
 		});
@@ -111,13 +111,13 @@ describe('queuelogger', () => {
 		it('unknown tableName throws', async () => {
 			const ql = new QueueLog({
 				...settings,
-				tableName: 'unknown_table',
+				tableName: 'unknown_table'
 			});
 
 			try {
 				await ql.writeEntry(...testData1);
 				assert.ok(false, 'Expected an error');
-			} catch (err) {
+			} catch (error) {
 			}
 			await ql.end();
 		});
@@ -151,7 +151,11 @@ describe('queuelogger', () => {
 			const sqlstr = `SELECT ${cols}, unique_row_count FROM queue_log WHERE time_id = ? ORDER BY unique_row_count`;
 			const results = await pQuery(cli, sqlstr, timeID);
 
-			assert.deepEqual(results, [{...testObject1, unique_row_count: 1}, testObject2]);
+			/* Remove prototype from results. */
+			assert.deepStrictEqual(
+				[results.length, {...results[0]}, {...results[1]}],
+				[2, {...testObject1, unique_row_count: 1}, testObject2]
+			);
 		});
 	});
 });

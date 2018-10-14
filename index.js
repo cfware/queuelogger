@@ -21,7 +21,7 @@ class queuelogger extends events {
 			connectionLimit: 10,
 			queueLimit: 0,
 			database: 'queuemetrics',
-			...mysql,
+			...mysql
 		});
 		this.pendingCount = 0;
 		this.pending = {};
@@ -108,7 +108,7 @@ class queuelogger extends events {
 			data3,
 			data4,
 			data5,
-			serverid: serverID,
+			serverid: serverID
 		};
 		const key = `${partition}-${timeID}`;
 

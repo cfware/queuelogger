@@ -40,21 +40,16 @@
 	},
 	"dependencies": {
 		"@cfware/p-mutex": "^0.1.0",
-		"mysql": "^2.15.0",
-		"p-event": "^2.0.0"
+		"mysql": "^2.16.0",
+		"p-event": "^2.1.0"
 	},
 	"devDependencies": {
-		"eslint": "^5.0.0",
-		"mocha": "^5.0.1",
-		"nyc": "^12.0.1",
-		"xo": "^0.21.0"
+		"mocha": "^5.2.0",
+		"nyc": "^13.1.0",
+		"xo": "^0.23.0"
 	},
 	"xo": {
 		"rules": {
-			"comma-dangle": [
-				"error",
-				"always-multiline"
-			],
 			"camelcase": [
 				"error",
 				{
