@@ -105,6 +105,7 @@ describe('queuelogger', () => {
 				assert.ok(false, 'Expected an error');
 			} catch (error) {
 			}
+
 			await ql.end();
 		});
 
@@ -119,6 +120,7 @@ describe('queuelogger', () => {
 				assert.ok(false, 'Expected an error');
 			} catch (error) {
 			}
+
 			await ql.end();
 		});
 
