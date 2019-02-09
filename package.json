@@ -41,11 +41,11 @@
 	"dependencies": {
 		"@cfware/p-mutex": "^0.1.0",
 		"mysql": "^2.16.0",
-		"p-event": "^2.1.0"
+		"p-event": "^2.2.0"
 	},
 	"devDependencies": {
 		"mocha": "^5.2.0",
-		"nyc": "^13.1.0",
+		"nyc": "^13.2.0",
 		"xo": "^0.24.0"
 	},
 	"xo": {
