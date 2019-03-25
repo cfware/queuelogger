@@ -1,9 +1,10 @@
 {
 	"name": "@aqm/queuelogger",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "CFWare AQM queue_log mysql writer",
 	"main": "index.js",
 	"scripts": {
+		"release": "standard-version --sign",
 		"test": "xo && nyc mocha"
 	},
 	"engines": {
@@ -46,6 +47,7 @@
 	"devDependencies": {
 		"mocha": "^6.0.2",
 		"nyc": "^13.3.0",
+		"standard-version": "^5.0.2",
 		"xo": "^0.24.0"
 	},
 	"xo": {
