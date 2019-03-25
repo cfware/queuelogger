@@ -3,7 +3,7 @@
 const assert = require('assert');
 const QueueLog = require('..');
 const {hostname} = require('os');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const {describe, before, after, it} = require('mocha');
 
 const mysqlClientSettings = {

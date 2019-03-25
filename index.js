@@ -3,7 +3,7 @@
 const assert = require('assert');
 const events = require('events');
 const {hostname} = require('os');
-const mysqlClient = require('mysql');
+const mysqlClient = require('mysql2');
 const PMutex = require('@cfware/p-mutex');
 const pEvent = require('p-event');
 
@@ -16,7 +16,6 @@ class queuelogger extends events {
 		this.serverID = serverID || hostname().replace(/\..*/, '').slice(0, 10);
 		this.tableName = tableName || 'queue_log';
 		this.mysql = mysqlClient.createPool({
-			acquireTimeout: 10000,
 			waitForConnections: true,
 			connectionLimit: 10,
 			queueLimit: 0,
