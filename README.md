@@ -1,7 +1,6 @@
 # @aqm/queuelogger
 
 [![Travis CI][travis-image]][travis-url]
-[![Coverage Status][coverage-image]][coverage-url]
 [![Greenkeeper badge](https://badges.greenkeeper.io/cfware/queuelogger.svg)](https://greenkeeper.io/)
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
@@ -79,8 +78,6 @@ npm test
 [npm-url]: https://npmjs.org/package/@aqm/queuelogger
 [travis-image]: https://travis-ci.org/cfware/queuelogger.svg?branch=master
 [travis-url]: https://travis-ci.org/cfware/queuelogger
-[coverage-image]: https://coveralls.io/repos/github/cfware/queuelogger/badge.svg
-[coverage-url]: https://coveralls.io/github/cfware/queuelogger
 [downloads-image]: https://img.shields.io/npm/dm/@aqm/queuelogger.svg
 [downloads-url]: https://npmjs.org/package/@aqm/queuelogger
 [license-image]: https://img.shields.io/github/license/cfware/queuelogger.svg
