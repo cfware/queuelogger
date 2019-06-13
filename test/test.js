@@ -1,10 +1,9 @@
-'use strict';
+import {hostname} from 'os';
 
-const assert = require('assert');
-const QueueLog = require('..');
-const {hostname} = require('os');
-const mysql = require('mysql2');
-const {describe, before, after, it} = require('mocha');
+import test from 'ava';
+import mysql from 'mysql2';
+
+import {QueueLogger} from '..';
 
 const mysqlClientSettings = {
 	host: process.env.npm_package_config_dbhost,
@@ -58,106 +57,82 @@ const testObject2 = {
 	unique_row_count: 2
 };
 
-describe('queuelogger', () => {
-	/* First run takes longer than normal, extra create to avoid slowness warnings. */
-	before(() => new QueueLog());
+test('new', t => t.truthy(new QueueLogger()));
+test('constructor defaults', t => {
+	const ql = new QueueLogger();
 
-	it('new', () => assert.ok(new QueueLog()));
-	it('new contains mysql', () => assert.ok((new QueueLog()).mysql));
+	t.is(ql.partition, partition);
+	t.is(ql.tableName, 'queue_log');
+	t.is(ql.serverID, serverID);
+});
 
-	describe('constructor defaults', () => {
-		const ql = new QueueLog();
-
-		it('partition', () => assert.strictEqual(ql.partition, partition));
-		it('tableName', () => assert.strictEqual(ql.tableName, 'queue_log'));
-		it('serverID', () => assert.strictEqual(ql.serverID, serverID));
+test('constructor arguments', t => {
+	const ql = new QueueLogger({
+		partition: 'P002',
+		tableName: 'testtable',
+		serverID: 'testsrv'
 	});
 
-	describe('constructor arguments', () => {
-		const ql = new QueueLog({
-			partition: 'P002',
-			tableName: 'testtable',
-			serverID: 'testsrv'
-		});
+	t.is(ql.partition, 'P002');
+	t.is(ql.tableName, 'testtable');
+	t.is(ql.serverID, 'testsrv');
+});
 
-		it('partition', () => assert.strictEqual(ql.partition, 'P002'));
-		it('tableName', () => assert.strictEqual(ql.tableName, 'testtable'));
-		it('serverID', () => assert.strictEqual(ql.serverID, 'testsrv'));
+test('writeEntry after end throws', async t => {
+	const ql = new QueueLogger();
+
+	await ql.end();
+	await t.throwsAsync(ql.writeEntry(...testData1));
+});
+
+test('invalid user throws', async t => {
+	const ql = new QueueLogger({mysql: {user: 'invalid user'}});
+
+	await t.throwsAsync(ql.writeEntry(...testData1));
+	await ql.end();
+});
+
+test('unknown tableName throws', async t => {
+	const ql = new QueueLogger({
+		...settings,
+		tableName: 'unknown_table'
 	});
 
-	describe('insert', () => {
-		it('writeEntry after end throws', async () => {
-			const ql = new QueueLog();
+	await t.throwsAsync(ql.writeEntry(...testData1));
+	await ql.end();
+});
 
-			await ql.end();
-			try {
-				await ql.writeEntry(...testData1);
-				assert.ok(false, 'Expected an error');
-			} catch (error) {
+test('success with auto_inc order', async t => {
+	const cli = mysql.createConnection(mysqlClientSettings);
+	const pQuery = (cli, ...args) => new Promise((resolve, reject) => {
+		cli.query(...args, (error, results) => {
+			if (error) {
+				reject(error);
+			} else {
+				resolve(results);
 			}
-		});
-
-		it('invalid user throws', async () => {
-			const ql = new QueueLog({mysql: {user: 'invalid user'}});
-
-			try {
-				await ql.writeEntry(...testData1);
-				assert.ok(false, 'Expected an error');
-			} catch (error) {
-			}
-
-			await ql.end();
-		});
-
-		it('unknown tableName throws', async () => {
-			const ql = new QueueLog({
-				...settings,
-				tableName: 'unknown_table'
-			});
-
-			try {
-				await ql.writeEntry(...testData1);
-				assert.ok(false, 'Expected an error');
-			} catch (error) {
-			}
-
-			await ql.end();
-		});
-
-		it('success with auto_inc order', async () => {
-			const cli = mysql.createConnection(mysqlClientSettings);
-			const pQuery = (cli, ...args) => new Promise((resolve, reject) => {
-				cli.query(...args, (error, results) => {
-					if (error) {
-						reject(error);
-					} else {
-						resolve(results);
-					}
-				});
-			});
-			const ql = new QueueLog(settings);
-
-			after(() => {
-				cli.end();
-				ql.end();
-			});
-
-			/* Clear records from previous test. */
-			await pQuery(cli, 'DELETE FROM queue_log WHERE time_id = ?', timeID);
-
-			ql.writeEntry(...testData1);
-			await ql.writeEntry(timeID, '', '', '', verb, data1, data2, data3, data4, data5);
-			await ql.end();
-
-			const cols = Object.keys(testObject1).map(key => '`' + key + '`').join(',');
-			const sqlstr = `SELECT ${cols}, unique_row_count FROM queue_log WHERE time_id = ? ORDER BY unique_row_count`;
-			const results = await pQuery(cli, sqlstr, timeID);
-
-			/* Remove prototype from results. */
-			assert.deepStrictEqual(
-				[results.length, {...results[0]}, {...results[1]}],
-				[2, {...testObject1, unique_row_count: 1}, testObject2]
-			);
 		});
 	});
+	const ql = new QueueLogger(settings);
+
+	// Clear records from previous test.
+	await pQuery(cli, 'DELETE FROM queue_log WHERE time_id = ?', timeID);
+
+	ql.writeEntry(...testData1);
+	await ql.writeEntry(timeID, '', '', '', verb, data1, data2, data3, data4, data5);
+	await ql.end();
+
+	const cols = Object.keys(testObject1).map(key => '`' + key + '`').join(',');
+	const sqlstr = `SELECT ${cols}, unique_row_count FROM queue_log WHERE time_id = ? ORDER BY unique_row_count`;
+	const results = await pQuery(cli, sqlstr, timeID);
+
+	// Remove prototype from results.
+	t.is(results.length, 2);
+	t.deepEqual(
+		[{...results[0]}, {...results[1]}],
+		[{...testObject1, unique_row_count: 1}, testObject2]
+	);
+
+	cli.end();
+	ql.end();
 });

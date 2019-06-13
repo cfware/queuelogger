@@ -10,7 +10,7 @@ CFWare AQM queue_log mysql writer
 
 ### Install @aqm/queuelogger
 
-This module requires node.js 8 or above.
+This module requires node.js 12 or above.
 
 ```sh
 npm i --save @aqm/queuelogger
@@ -19,11 +19,11 @@ npm i --save @aqm/queuelogger
 ## Usage
 
 ```js
-const queuelogger = require('@aqm/queuelogger');
+import {QueueLogger} from '@aqm/queuelogger';
 
 class QueueManager {
 	constructor() {
-		this.queue_log = new queuelogger({
+		this.logger = new QueueLogger({
 			/* Default is 'P001', used as value of partition column. */
 			partition: 'P001',
 			/* Default is least significant part of hostname, used as value of serverid column. */
@@ -36,14 +36,14 @@ class QueueManager {
 			mysql: {},
 		});
 
-		process.on('SIGTERM', () => this.queue_log.end().catch(() => {}));
+		process.on('SIGTERM', () => this.logger.end().catch(() => {}));
 	}
 
 	async writeQueueLog(timeID, callID, queue, agent, verb, data1, data2, data3, data4, data5) {
 		/* This is a pointless example.  In real life a queue manager would retrieve some
 		 * data from a channel or other object. */
 		try {
-			await this.queue_log.writeEntry(timeID, callID, queue, agent, verb, data1, data2, data3, data4, data5);
+			await this.logger.writeEntry(timeID, callID, queue, agent, verb, data1, data2, data3, data4, data5);
 		} catch (err) {
 			/* mysql write failed, record to a file. */
 		}
