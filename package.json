@@ -21,11 +21,6 @@
 		"queuemetrics",
 		"mysql"
 	],
-	"files": [
-		"*.js",
-		"sampledb",
-		"test"
-	],
 	"bugs": {
 		"url": "https://github.com/cfware/queuelogger/issues"
 	},
