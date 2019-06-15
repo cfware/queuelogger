@@ -1,6 +1,23 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [2.0.0](https://github.com/cfware/queuelogger/compare/v1.1.0...v2.0.0) (2019-06-15)
+
+
+### Features
+
+* Require node.js 12 ([6bc8ffc](https://github.com/cfware/queuelogger/commit/6bc8ffc))
+
+
+### BREAKING CHANGES
+
+* The mysql pool is no longer exposed.
+* The implementation is now an ES module.
+* Named export QueueLogger is provided instead of default
+export.
+
+
 
 # [1.1.0](https://github.com/cfware/queuelogger/compare/v1.0.0...v1.1.0) (2019-03-25)
 
