@@ -3,7 +3,7 @@ import {hostname} from 'os';
 import test from 'ava';
 import mysql from 'mysql2';
 
-import {QueueLogger} from '..';
+import {QueueLogger} from '../index.js';
 
 const mysqlClientSettings = {
 	host: process.env.npm_package_config_dbhost,
