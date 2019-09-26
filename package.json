@@ -39,12 +39,12 @@
 		"p-event": "^4.1.0"
 	},
 	"devDependencies": {
-		"@cfware/eslint-config-node": "^0.1.0",
+		"@cfware/eslint-config-node": "^0.1.1",
 		"@cfware/nyc": "^0.5.0",
 		"ava": "^2.1.0",
 		"nyc": "^14.1.1",
 		"standard-version": "^7.0.0",
-		"xo": "^0.24.0"
+		"xo": "^0.25.3"
 	},
 	"xo": {
 		"extends": "@cfware/eslint-config-node",
