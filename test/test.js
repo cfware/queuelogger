@@ -57,7 +57,10 @@ const testObject2 = {
 	unique_row_count: 2
 };
 
-test('new', t => t.truthy(new QueueLogger()));
+test('new', t => {
+	t.truthy(new QueueLogger());
+});
+
 test('constructor defaults', t => {
 	const ql = new QueueLogger();
 
