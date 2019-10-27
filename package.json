@@ -35,7 +35,7 @@
 	},
 	"dependencies": {
 		"@cfware/p-mutex": "^0.2.0",
-		"mysql2": "^1.6.5",
+		"mysql2": "^2.0.0",
 		"p-event": "^4.1.0"
 	},
 	"devDependencies": {
