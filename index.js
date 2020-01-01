@@ -1,9 +1,14 @@
 import assert from 'assert';
-import EventEmitter from 'events';
+import {EventEmitter, once} from 'events';
 import {hostname} from 'os';
 import mysqlClient from 'mysql2';
 import {PMutex} from '@cfware/p-mutex';
-import pEvent from 'p-event';
+
+function defaultServerID() {
+	return hostname()
+		.replace(/\..*/u, '')
+		.slice(0, 10);
+}
 
 export class QueueLogger extends EventEmitter {
 	#pending = new Map();
@@ -18,7 +23,7 @@ export class QueueLogger extends EventEmitter {
 
 		this.#partition = partition || 'P001';
 		/* Default is the first part of our hostname only, up to 10 characters. */
-		this.#serverID = serverID || hostname().replace(/\..*/, '').slice(0, 10);
+		this.#serverID = serverID || defaultServerID();
 		this.#tableName = tableName || 'queue_log';
 		this.#mysql = mysqlClient.createPool({
 			waitForConnections: true,
@@ -41,16 +46,23 @@ export class QueueLogger extends EventEmitter {
 		return this.#tableName;
 	}
 
-	_checkEnd() {
-		if (this.#wantsEnd && this.#mysql && this.#pending.size === 0) {
-			this.#mysql.end().then(() => this.emit('end'));
-			this.#mysql = null;
+	async _checkEnd() {
+		try {
+			if (this.#wantsEnd && this.#mysql && this.#pending.size === 0) {
+				const mysql = this.#mysql;
+				this.#mysql = null;
+
+				await mysql.end();
+				this.emit('end');
+			}
+		} catch (error) {
+			this.emit('error', error);
 		}
 	}
 
 	end() {
 		if (!this.#wantsEnd) {
-			this.#wantsEnd = pEvent(this, 'end');
+			this.#wantsEnd = once(this, 'end');
 			this._checkEnd();
 		}
 

@@ -1,0 +1,6 @@
+{
+	"rules": {
+		"camelcase": [2, {"properties": "never"}],
+		"max-params": 0
+	}
+}

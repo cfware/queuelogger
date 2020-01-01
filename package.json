@@ -2,12 +2,16 @@
 	"name": "@aqm/queuelogger",
 	"version": "2.0.0",
 	"description": "CFWare AQM queue_log mysql writer",
+	"main": "index.js",
+	"type": "module",
+	"exports": "./index.js",
 	"scripts": {
 		"release": "standard-version --sign",
-		"test": "xo && nyc ava"
+		"pretest": "cfware-lint .",
+		"test": "c8 node test.js"
 	},
 	"engines": {
-		"nodejs": ">=12"
+		"nodejs": ">=13.8.0"
 	},
 	"repository": {
 		"type": "git",
@@ -25,37 +29,19 @@
 		"url": "https://github.com/cfware/queuelogger/issues"
 	},
 	"homepage": "https://github.com/cfware/queuelogger#readme",
-	"publishConfig": {
-		"access": "public"
-	},
 	"config": {
 		"dbhost": "localhost",
 		"dbprivuser": "root",
 		"dbprivpassword": ""
 	},
 	"dependencies": {
-		"@cfware/p-mutex": "^0.2.0",
-		"mysql2": "^2.0.0",
-		"p-event": "^4.1.0"
+		"@cfware/p-mutex": "^0.3.0",
+		"mysql2": "^2.1.0"
 	},
 	"devDependencies": {
-		"@cfware/eslint-config-node": "^0.1.1",
-		"@cfware/nyc": "^0.5.0",
-		"ava": "^2.1.0",
-		"nyc": "^14.1.1",
-		"standard-version": "^7.0.0",
-		"xo": "^0.25.3"
-	},
-	"xo": {
-		"extends": "@cfware/eslint-config-node",
-		"rules": {
-			"camelcase": [
-				"error",
-				{
-					"properties": "never"
-				}
-			],
-			"max-params": "off"
-		}
+		"@cfware/lint": "^1.0.0",
+		"c8": "^7.0.0",
+		"libtap": "^0.2.0",
+		"standard-version": "^7.0.0"
 	}
 }
