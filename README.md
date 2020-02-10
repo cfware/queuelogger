@@ -10,7 +10,7 @@ CFWare AQM queue_log mysql writer
 
 ### Install @aqm/queuelogger
 
-This module requires node.js 12 or above.
+This module requires node.js 13.8.0 or above.
 
 ```sh
 npm i --save @aqm/queuelogger
@@ -53,9 +53,8 @@ class QueueManager {
 
 ## Running tests
 
-Tests are provided by eslint and mocha.  Tests require access to a test mysql or
-mariadb daemon.  The test database server must have a `queuemetrics` database and
-a `queuelogd` user as defined by `sampledb/qm.sql`.
+Tests require access to a test mysql or mariadb daemon.  The test database server must
+have a `queuemetrics` database and a `queuelogd` user as defined by `sampledb/qm.sql`.
 
 Default test configuration:
 ```sh
