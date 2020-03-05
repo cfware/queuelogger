@@ -41,7 +41,7 @@
 	"devDependencies": {
 		"@cfware/lint": "^1.0.0",
 		"c8": "^7.0.0",
-		"libtap": "^0.2.0",
+		"libtap": "^0.3.0",
 		"standard-version": "^7.0.0"
 	}
 }
