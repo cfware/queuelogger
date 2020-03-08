@@ -11,7 +11,7 @@
 		"test": "c8 node test.js"
 	},
 	"engines": {
-		"nodejs": ">=13.8.0"
+		"node": ">=13.8.0"
 	},
 	"repository": {
 		"type": "git",
