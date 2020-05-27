@@ -39,7 +39,7 @@
 		"mysql2": "^2.1.0"
 	},
 	"devDependencies": {
-		"@cfware/lint": "^1.0.0",
+		"@cfware/lint": "^1.5.0",
 		"c8": "^7.0.0",
 		"libtap": "^0.3.0",
 		"standard-version": "^8.0.0"
